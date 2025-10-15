@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Прогноз погоды</title>
+    <style>
+        body {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 25px 30px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #2c3e50;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 35px;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            max-width: 320px;
+            padding: 14px 18px;
+            font-size: 17px;
+            border: none;
+            border-radius: 10px 0 0 10px;
+            outline: none;
+        }
+        button {
+            padding: 14px 22px;
+            font-size: 17px;
+            background-color: #0066ff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 0 10px 10px 0;
+            transition: background-color 0.25s ease-in-out;
+        }
+        button:hover {
+            background-color: #004bb5;
+        }
+        .error-message {
+            color: #ff5555;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 22px;
+            text-shadow: 0 0 4px rgba(255, 85, 85, 0.8);
+        }
+
+        .weather-summary {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+            padding: 28px 25px;
+            text-align: center;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+            margin-bottom: 35px;
+        }
+        .weather-summary .city-name {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #0066ff;
+        }
+        .weather-summary .icon {
+            width: 110px;
+            height: 110px;
+            margin-bottom: 18px;
+        }
+        .weather-summary .temperature {
+            font-size: 46px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            color: #2c3e50;
+        }
+        .weather-summary .condition {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-transform: capitalize;
+            color: #4a4a4a;
+        }
+        .weather-info {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            font-size: 15px;
+            color: #3a3a3a;
+            font-weight: 600;
+        }
+        .weather-info > div {
+            background-color: #d9ebff;
+            padding: 11px 16px;
+            border-radius: 9px;
+            min-width: 100px;
+            margin: 6px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+        }
+
+        /* Блок почасового прогноза */
+        .hourly-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 45px;
+            padding-bottom: 18px;
+        }
+        .hour-card {
+            display: inline-block;
+            background-color: #4db6ac;
+            color: white;
+            width: 110px;
+            padding: 18px 14px;
+            border-radius: 11px;
+            margin-right: 15px;
+            text-align: center;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+            box-sizing: border-box;
+        }
+        .hour-card img {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 10px;
+        }
+
+        /* Дневной прогноз */
+        .daily-container {
+            display: flex;
+            gap: 18px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .day-forecast {
+            background-color: #80cbc4;
+            width: 18%;
+            min-width: 95px;
+            padding: 20px 16px;
+            border-radius: 14px;
+            text-align: center;
+            color: #004d40;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .day-forecast img {
+            width: 68px;
+            height: 68px;
+            margin-bottom: 12px;
+        }
+        .day-forecast .date-label {
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+        .day-forecast div {
+            margin: 5px 0;
+        }
+
+        /* Адаптив для телефонов */
+        @media (max-width: 600px) {
+            body {
+                max-width: 95%;
+                padding: 18px 12px;
+            }
+            .daily-container {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            .day-forecast {
+                width: 110px;
+                flex-shrink: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Прогноз погоды</h1>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="text" name="city" placeholder="Введите название города" required autocomplete="off" />
+        <button type="submit">Показать</button>
+    </form>
+
+    {% if error %}
+        <p class="error-message">{{ error }}</p>
+    {% endif %}
+
+    {% if weather %}
+    <section class="weather-summary">
+        <div class="city-name">{{ weather.city }}</div>
+        <img class="icon" src="{{ weather.icon }}" alt="Погодная иконка" />
+        <div class="temperature">{{ weather.temp }}°C</div>
+        <div class="condition">{{ weather.description }}</div>
+        <div class="weather-info">
+            <div>Ощущается как<br /><strong>{{ weather.feels_like }}°C</strong></div>
+            <div>Влажность<br /><strong>{{ weather.humidity }}%</strong></div>
+            <div>Ветер<br /><strong>{{ weather.wind }} км/ч</strong></div>
+            <div>Обновлено<br /><strong>{{ weather.last_updated }}</strong></div>
+        </div>
+    </section>
+
+    <h2 style="color: #fff; text-align: center; margin-bottom: 18px;">Почасовой прогноз (следующие 12 часов)</h2>
+    <div class="hourly-container">
+        {% for hour in hourly %}
+        <div class="hour-card">
+            <div>{{ hour.time }}</div>
+            <img src="{{ hour.icon }}" alt="Погодная иконка" />
+            <div>{{ hour.temp }}°C</div>
+            <div style="font-size: 13px;">{{ hour.description }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2 style="color: #fff; text-align: center; margin-bottom: 18px;">Прогноз на 5 дней</h2>
+    <div class="daily-container">
+        {% for day in daily %}
+        <div class="day-forecast">
+            <div class="date-label">{{ day.date }}</div>
+            <img src="{{ day.icon }}" alt="Иконка погоды" />
+            <div>Макс: {{ day.maxtemp }}°C</div>
+            <div>Мин: {{ day.mintemp }}°C</div>
+            <div>{{ day.description }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+</html>
