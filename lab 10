@@ -1,0 +1,79 @@
+# task1_read_file.py
+def read_file(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read()
+            print("File Contents:\n")
+            print(content)
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' does not exist.")
+    except IOError as e:
+        print(f"Error reading file: {e}")
+
+if __name__ == "__main__":
+    file_path = "sample.txt" 
+    read_file(file_path)
+
+read_file(file_path)
+
+
+# task2_write_file.py
+
+def write_to_file(filename, text):
+    """Записывает текст в файл."""
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(text)
+    print(f"Текст успешно записан в {filename}")
+
+def read_from_file(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        content = file.read()
+    print("Содержимое файла:")
+    print(content)
+
+if __name__ == "__main__":
+    filename = "example.txt"
+    text = "Ernur Esimuly"
+    write_to_file(filename, text)
+    read_from_file(filename)
+task3_exceptions.py
+def divide_numbers():
+    try:
+        a = float(input("Введите первое число: "))
+        b = float(input("Введите второе число: "))
+        result = a / b
+    except ValueError:
+        print(" Ошибка: введено не число.")
+    except ZeroDivisionError:
+        print(" Ошибка: деление на ноль невозможно.")
+    else:
+        print(f"Результат деления: {result}")
+    finally:
+        print("🔹 Программа завершена.")
+
+
+if __name__ == "__main__":
+    divide_numbers()
+
+task4_custom_error.py
+class NegativeNumberError(Exception):
+    """Пользовательское исключение для отрицательных чисел."""
+    def __init__(self, number):
+        super().__init__(f" Ошибка: число {number} отрицательное! Введите положительное число.")
+
+
+def check_positive(number):
+    if number < 0:
+        raise NegativeNumberError(number)
+    else:
+        print(f" Число {number} корректно!")
+
+
+if __name__ == "__main__":
+    try:
+        num = float(input("Введите число: "))
+        check_positive(num)
+    except ValueError:
+        print(" Ошибка: введено не число.")
+    except NegativeNumberError as e:
+        print(e)
